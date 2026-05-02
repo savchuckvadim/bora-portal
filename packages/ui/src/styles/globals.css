@@ -1,0 +1,9 @@
+@import 'tailwindcss';
+/* Только исходники пакета UI (Storybook / изолированная сборка). Приложение сканирует свои пути в apps/web/src/app/globals.css */
+@source "../**/*.{ts,tsx}";
+
+@import 'tw-animate-css';
+
+@custom-variant dark (&:is(.dark *));
+
+@import './design-tokens.css';

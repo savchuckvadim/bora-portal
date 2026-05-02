@@ -1,0 +1,73 @@
+version: "3.9"
+
+services:
+  postgres-app:
+    image: postgres:16
+    environment:
+      POSTGRES_DB: ${POSTGRES_APP_DB:-portal}
+      POSTGRES_USER: ${POSTGRES_APP_USER:-portal}
+      POSTGRES_PASSWORD: ${POSTGRES_APP_PASSWORD:-portal}
+    ports:
+      - "5432:5432"
+    volumes:
+      - postgres_app_data:/var/lib/postgresql/data
+
+  postgres-matrix:
+    image: postgres:16
+    environment:
+      POSTGRES_DB: ${POSTGRES_MATRIX_DB:-synapse}
+      POSTGRES_USER: ${POSTGRES_MATRIX_USER:-synapse}
+      POSTGRES_PASSWORD: ${POSTGRES_MATRIX_PASSWORD:-synapse}
+    ports:
+      - "5433:5432"
+    volumes:
+      - postgres_matrix_data:/var/lib/postgresql/data
+
+  postgres-keycloak:
+    image: postgres:16
+    environment:
+      POSTGRES_DB: ${POSTGRES_KEYCLOAK_DB:-keycloak}
+      POSTGRES_USER: ${POSTGRES_KEYCLOAK_USER:-keycloak}
+      POSTGRES_PASSWORD: ${POSTGRES_KEYCLOAK_PASSWORD:-keycloak}
+    ports:
+      - "5434:5432"
+    volumes:
+      - postgres_keycloak_data:/var/lib/postgresql/data
+
+  synapse:
+    image: matrixdotorg/synapse:latest
+    environment:
+      SYNAPSE_SERVER_NAME: ${MATRIX_SERVER_NAME:-matrix.local}
+      SYNAPSE_REPORT_STATS: "no"
+    depends_on:
+      - postgres-matrix
+    ports:
+      - "8008:8008"
+    volumes:
+      - ../matrix/homeserver.yaml:/data/homeserver.yaml:ro
+      - synapse_data:/data
+
+  keycloak:
+    image: quay.io/keycloak/keycloak:26.1.4
+    command:
+      - start-dev
+      - --import-realm
+    environment:
+      KEYCLOAK_ADMIN: ${KEYCLOAK_ADMIN:-admin}
+      KEYCLOAK_ADMIN_PASSWORD: ${KEYCLOAK_ADMIN_PASSWORD:-admin}
+      KC_DB: postgres
+      KC_DB_URL: jdbc:postgresql://postgres-keycloak:5432/${POSTGRES_KEYCLOAK_DB:-keycloak}
+      KC_DB_USERNAME: ${POSTGRES_KEYCLOAK_USER:-keycloak}
+      KC_DB_PASSWORD: ${POSTGRES_KEYCLOAK_PASSWORD:-keycloak}
+    depends_on:
+      - postgres-keycloak
+    ports:
+      - "8080:8080"
+    volumes:
+      - ../keycloak/realm-export.json:/opt/keycloak/data/import/realm-export.json:ro
+
+volumes:
+  postgres_app_data:
+  postgres_matrix_data:
+  postgres_keycloak_data:
+  synapse_data:

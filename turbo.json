@@ -1,0 +1,45 @@
+{
+    "$schema": "https://turbo.build/schema.json",
+    "ui": "tui",
+    "tasks": {
+        "build": {
+            "dependsOn": [
+                "^build"
+            ],
+            "inputs": [
+                "$TURBO_DEFAULT$",
+                ".env*"
+            ],
+            "outputs": [
+                ".next/**",
+                "!.next/cache/**",
+                "src/generated/**",
+                "dist/**"
+            ],
+            "env": [
+                "REDIS_HOST",
+                "NEXT_PUBLIC_API_URL"
+            ]
+        },
+        "lint": {
+            "dependsOn": [
+                "^lint"
+            ],
+            "env": [
+                "REDIS_HOST"
+            ]
+        },
+        "check-types": {
+            "dependsOn": [
+                "^check-types"
+            ]
+        },
+        "dev": {
+            "cache": false,
+            "persistent": true,
+            "env": [
+                "REDIS_HOST"
+            ]
+        }
+    }
+}

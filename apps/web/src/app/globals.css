@@ -1,0 +1,12 @@
+@import 'tailwindcss';
+
+@source "../**/*.{ts,tsx}";
+@source "../**/*.mdx";
+@source "../../../../packages/ui/src/**/*.{ts,tsx}";
+@source "../../../../packages/theme/src/**/*.{ts,tsx}";
+
+@import 'tw-animate-css';
+
+@custom-variant dark (&:is(.dark *));
+
+@import '@workspace/ui/styles/design-tokens.css';
